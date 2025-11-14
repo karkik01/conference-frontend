@@ -1,9 +1,11 @@
 // =============================================
-// AdminPanel.js — Futuristic Admin Dashboard (With Snackbars)
+// AdminPanel.js — Futuristic Admin Dashboard (FIXED)
 // =============================================
 
 import React, { useState, useEffect } from "react";
-import API from "../api";
+
+import api from "../api";   // ✅ FIXED IMPORT
+
 import {
   Snackbar,
   Alert,
@@ -46,13 +48,13 @@ export default function AdminPanel() {
   const loadData = async () => {
     try {
       if (tab === "rooms") {
-        const res = await API.get("rooms/", { headers });
+        const res = await api.get("/api/rooms/", { headers });
         setRooms(res.data);
       } else if (tab === "reservations") {
-        const res = await API.get("reservations/", { headers });
+        const res = await api.get("/api/reservations/", { headers });
         setReservations(res.data);
       } else if (tab === "users") {
-        const res = await API.get("users/", { headers });
+        const res = await api.get("/api/users/", { headers });
         setUsers(res.data);
       }
     } catch (err) {
@@ -61,20 +63,20 @@ export default function AdminPanel() {
     }
   };
 
-  // ✅ Snackbar Helper
+  // Snackbar
   const showSnackbar = (message, severity = "success") => {
     setSnackbar({ open: true, message, severity });
   };
 
-  // ✅ Room Add/Edit
+  // ➕ Add / Edit Room
   const handleRoomSubmit = async (e) => {
     e.preventDefault();
     try {
       if (editingRoom) {
-        await API.put(`rooms/${editingRoom}/`, form, { headers });
+        await api.put(`/api/rooms/${editingRoom}/`, form, { headers });
         showSnackbar("Room updated successfully", "success");
       } else {
-        await API.post("rooms/", form, { headers });
+        await api.post("/api/rooms/", form, { headers });
         showSnackbar("Room added successfully", "success");
       }
       setForm({ name: "", location: "", capacity: "" });
@@ -94,7 +96,7 @@ export default function AdminPanel() {
     setEditingRoom(room.id);
   };
 
-  // 🗑 Delete Room
+  // ❌ Delete Room
   const handleDeleteRoom = (id) => {
     setConfirmDialog({
       open: true,
@@ -104,7 +106,7 @@ export default function AdminPanel() {
     });
   };
 
-  // 🧾 Cancel Reservation
+  // 🧾 Cancel reservation
   const cancelReservation = (id) => {
     setConfirmDialog({
       open: true,
@@ -114,50 +116,28 @@ export default function AdminPanel() {
     });
   };
 
-  // ❌ Delete User
+  // ❌ Delete user
   const handleDeleteUser = (id) => {
     setConfirmDialog({
       open: true,
       id,
       action: "deleteUser",
-      message: "Are you sure you want to delete this user account?",
+      message: "Are you sure you want to delete this user?",
     });
   };
 
-  // 🏷 Reserve for user
-  const handleReserveForUser = async (userId, roomId) => {
-    const date = prompt("Enter date (YYYY-MM-DD):");
-    const start = prompt("Start time (HH:MM):");
-    const end = prompt("End time (HH:MM):");
-    if (!date || !start || !end) {
-      showSnackbar("All fields required", "warning");
-      return;
-    }
-    try {
-      await API.post(
-        "reservations/",
-        { user: userId, room_id: roomId, date, start_time: start, end_time: end },
-        { headers }
-      );
-      showSnackbar("Reservation created successfully!", "success");
-      loadData();
-    } catch (err) {
-      showSnackbar("Failed to create reservation", "error");
-    }
-  };
-
-  // 🧩 Confirm Action Handler
+  // 📌 Confirm modal action
   const handleConfirm = async () => {
     const { id, action } = confirmDialog;
     try {
       if (action === "deleteRoom") {
-        await API.delete(`rooms/${id}/`, { headers });
+        await api.delete(`/api/rooms/${id}/`, { headers });
         showSnackbar("Room deleted successfully", "success");
       } else if (action === "cancelReservation") {
-        await API.delete(`reservations/${id}/`, { headers });
+        await api.delete(`/api/reservations/${id}/`, { headers });
         showSnackbar("Reservation cancelled successfully", "info");
       } else if (action === "deleteUser") {
-        await API.delete(`users/${id}/`, { headers });
+        await api.delete(`/api/users/${id}/`, { headers });
         showSnackbar("User deleted successfully", "info");
       }
       loadData();
@@ -168,37 +148,59 @@ export default function AdminPanel() {
     }
   };
 
+  // Reserve for user
+  const handleReserveForUser = async (userId, roomId) => {
+    const date = prompt("Enter date (YYYY-MM-DD):");
+    const start = prompt("Start time (HH:MM):");
+    const end = prompt("End time (HH:MM):");
+
+    if (!date || !start || !end) {
+      showSnackbar("All fields required", "warning");
+      return;
+    }
+
+    try {
+      await api.post(
+        "/api/reservations/",
+        {
+          user: userId,
+          room_id: roomId,
+          date,
+          start_time: start,
+          end_time: end,
+        },
+        { headers }
+      );
+      showSnackbar("Reservation created!", "success");
+      loadData();
+    } catch (err) {
+      showSnackbar("Failed to reserve", "error");
+    }
+  };
+
   return (
     <div className="admin-page">
       <div className="admin-panel">
         <div className="admin-header">
           <h2>Admin Panel</h2>
           <div className="admin-actions">
-            <button
-              className={`admin-btn ${tab === "rooms" ? "active" : ""}`}
-              onClick={() => setTab("rooms")}
-            >
+            <button className={`admin-btn ${tab === "rooms" ? "active" : ""}`} onClick={() => setTab("rooms")}>
               Manage Rooms
             </button>
-            <button
-              className={`admin-btn ${tab === "reservations" ? "active" : ""}`}
-              onClick={() => setTab("reservations")}
-            >
+            <button className={`admin-btn ${tab === "reservations" ? "active" : ""}`} onClick={() => setTab("reservations")}>
               Reservations
             </button>
-            <button
-              className={`admin-btn ${tab === "users" ? "active" : ""}`}
-              onClick={() => setTab("users")}
-            >
+            <button className={`admin-btn ${tab === "users" ? "active" : ""}`} onClick={() => setTab("users")}>
               Manage Users
             </button>
           </div>
         </div>
 
-        {/* 🏢 ROOMS TAB */}
+        {/* ROOMS TAB */}
         {tab === "rooms" && (
           <div className="admin-section">
             <h3>{editingRoom ? "Edit Room" : "Add Room"}</h3>
+
             <form onSubmit={handleRoomSubmit} className="admin-form">
               <input
                 type="text"
@@ -207,6 +209,7 @@ export default function AdminPanel() {
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 required
               />
+
               <input
                 type="text"
                 placeholder="Location"
@@ -214,23 +217,17 @@ export default function AdminPanel() {
                 onChange={(e) => setForm({ ...form, location: e.target.value })}
                 required
               />
+
               <input
                 type="number"
                 placeholder="Capacity"
                 value={form.capacity}
-                onChange={(e) =>
-                  setForm({ ...form, capacity: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, capacity: e.target.value })}
                 required
               />
-              <button type="submit">
-                {editingRoom ? "Update Room" : "Add Room"}
-              </button>
-              {editingRoom && (
-                <button type="button" onClick={() => setEditingRoom(null)}>
-                  Cancel
-                </button>
-              )}
+
+              <button type="submit">{editingRoom ? "Update Room" : "Add Room"}</button>
+              {editingRoom && <button onClick={() => setEditingRoom(null)}>Cancel</button>}
             </form>
 
             <h3>Existing Rooms</h3>
@@ -241,10 +238,7 @@ export default function AdminPanel() {
                   <button className="edit" onClick={() => handleEditRoom(r)}>
                     Edit
                   </button>
-                  <button
-                    className="delete"
-                    onClick={() => handleDeleteRoom(r.id)}
-                  >
+                  <button className="delete" onClick={() => handleDeleteRoom(r.id)}>
                     Delete
                   </button>
                 </div>
@@ -253,32 +247,34 @@ export default function AdminPanel() {
           </div>
         )}
 
-        {/* 📅 RESERVATIONS TAB */}
+        {/* RESERVATIONS TAB */}
         {tab === "reservations" && (
           <div className="admin-section">
             <h3>All Reservations</h3>
+
             {reservations.map((r) => (
               <div key={r.id} className="admin-card">
                 <p>
-                  <b>User:</b> {r.user?.username || "Unknown"}
-                  <span style={{ color: "#00eaff", marginLeft: "8px" }}>
-                    ({r.user?.email || "N/A"})
+                  <b>User:</b> {r.user?.username}
+                  <span style={{ color: "#00eaff", marginLeft: 8 }}>
+                    ({r.user?.email})
                   </span>
                 </p>
+
                 <p>
-                  <b>Room:</b> {r.room?.name || "N/A"}
+                  <b>Room:</b> {r.room?.name}
                 </p>
+
                 <p>
                   <b>Date:</b> {r.date}
                 </p>
+
                 <p>
                   <b>Time:</b> {r.start_time} - {r.end_time}
                 </p>
+
                 <div className="table-action">
-                  <button
-                    className="delete"
-                    onClick={() => cancelReservation(r.id)}
-                  >
+                  <button className="delete" onClick={() => cancelReservation(r.id)}>
                     Cancel
                   </button>
                 </div>
@@ -287,19 +283,22 @@ export default function AdminPanel() {
           </div>
         )}
 
-        {/* 👥 USERS TAB */}
+        {/* USERS TAB */}
         {tab === "users" && (
           <div className="admin-section">
             <h3>All Users</h3>
+
             {users.map((u) => (
               <div key={u.id} className="admin-card">
                 <p>
                   <b>{u.username}</b> — {u.email} ({u.is_staff ? "Admin" : "User"})
                 </p>
+
                 <div className="table-action">
                   <button className="delete" onClick={() => handleDeleteUser(u.id)}>
                     Delete
                   </button>
+
                   <button
                     className="edit"
                     onClick={() =>
@@ -318,35 +317,34 @@ export default function AdminPanel() {
         )}
       </div>
 
-      {/* ✅ Snackbar Notifications */}
+      {/* Toast */}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={2500}
         onClose={() => setSnackbar({ ...snackbar, open: false })}
         anchorOrigin={{ vertical: "top", horizontal: "right" }}
       >
-        <Alert
-          severity={snackbar.severity}
-          onClose={() => setSnackbar({ ...snackbar, open: false })}
-          sx={{ width: "100%" }}
-        >
-          {snackbar.message}
-        </Alert>
+        <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
       </Snackbar>
 
-      {/* ✅ Confirmation Dialog */}
+      {/* Confirm Dialog */}
       <Dialog
         open={confirmDialog.open}
         onClose={() => setConfirmDialog({ ...confirmDialog, open: false })}
       >
         <DialogTitle>Confirm Action</DialogTitle>
+
         <DialogContent>
           <DialogContentText>{confirmDialog.message}</DialogContentText>
         </DialogContent>
+
         <DialogActions>
-          <Button onClick={() => setConfirmDialog({ ...confirmDialog, open: false })}>
+          <Button
+            onClick={() => setConfirmDialog({ ...confirmDialog, open: false })}
+          >
             Cancel
           </Button>
+
           <Button color="error" onClick={handleConfirm} autoFocus>
             Confirm
           </Button>
