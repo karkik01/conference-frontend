@@ -1,0 +1,247 @@
+/* ===========================================================
+   navbar.css — Futuristic AI / Tech Theme (Final Version)
+   =========================================================== */
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap");
+
+/* === Navbar Container === */
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 50px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: rgba(10, 10, 20, 0.75);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(0, 255, 255, 0.15);
+  box-shadow: 0 0 30px rgba(0, 255, 255, 0.05);
+  font-family: "Inter", sans-serif;
+  transition: transform 0.4s ease, background 0.3s ease;
+}
+
+/* 🔹 Hide when scrolling down */
+.nav-container.hide {
+  transform: translateY(-100%);
+}
+
+/* === Logo === */
+.nav-logo {
+  cursor: pointer;
+  user-select: none;
+}
+
+.logo-text {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  background: linear-gradient(90deg, #00ffff, #007bff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
+  transition: all 0.3s ease;
+}
+
+.logo-text:hover {
+  text-shadow: 0 0 15px rgba(0, 255, 255, 0.8);
+  transform: scale(1.05);
+}
+
+/* === Nav Links === */
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: #bdefff;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
+
+.nav-links a:hover {
+  color: #00ffff;
+  text-shadow: 0 0 6px #00ffff;
+}
+
+/* === Buttons === */
+.nav-btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+/* Login Button */
+.nav-btn.login {
+  background: transparent;
+  border: 1px solid #00ffff55;
+  color: #00ffff;
+}
+
+.nav-btn.login:hover {
+  background: rgba(0, 255, 255, 0.1);
+  box-shadow: 0 0 8px #00ffff55;
+}
+
+/* Register Button */
+.nav-btn.register {
+  background: linear-gradient(90deg, #007bff, #00ffff);
+  color: white;
+  box-shadow: 0 0 8px rgba(0, 255, 255, 0.2);
+}
+
+.nav-btn.register:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+}
+
+/* Logout Button */
+.nav-btn.logout {
+  background: transparent;
+  border: 1px solid #ff5b5b66;
+  color: #ff7676;
+}
+
+.nav-btn.logout:hover {
+  background: rgba(255, 0, 0, 0.15);
+  box-shadow: 0 0 10px #ff5b5b66;
+}
+
+/* === Scanline Animation === */
+.nav-container::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  width: 100%;
+  background: linear-gradient(90deg, transparent, #00ffff, transparent);
+  background-size: 200px 100%;
+  animation: scanline 4s linear infinite;
+  opacity: 0.8;
+}
+
+@keyframes scanline {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: 200px 0;
+  }
+}
+
+/* === Responsive Design === */
+@media (max-width: 768px) {
+  .nav-container {
+    flex-direction: column;
+    gap: 15px;
+    padding: 15px 20px;
+  }
+
+  .nav-links {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+  }
+
+  .logo-text {
+    font-size: 1.3rem;
+  }
+}
+/* ========================================
+   Notification Dropdown — Futuristic Style
+   ======================================== */
+.notification-container {
+  position: relative;
+  display: inline-block;
+}
+
+.notification-dropdown {
+  position: absolute;
+  right: 0;
+  top: 45px;
+  width: 310px;
+  background: rgba(15, 25, 40, 0.96);
+  border: 1px solid rgba(0, 255, 255, 0.2);
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.15);
+  padding: 12px;
+  backdrop-filter: blur(10px);
+  animation: fadeIn 0.2s ease-out;
+  z-index: 999;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(0, 255, 255, 0.1);
+  padding-bottom: 6px;
+  margin-bottom: 6px;
+}
+
+.dropdown-header h4 {
+  color: #00eaff;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.dropdown-header button {
+  background: none;
+  border: none;
+  color: #00eaff;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.dropdown-header button:hover {
+  color: #fff;
+}
+
+.notif-item {
+  padding: 8px;
+  border-bottom: 1px solid rgba(0, 255, 255, 0.1);
+  transition: background 0.2s;
+}
+
+.notif-item:hover {
+  background: rgba(0, 255, 255, 0.05);
+}
+
+.notif-item p {
+  color: #bffcff;
+  font-size: 0.9rem;
+  margin: 0 0 4px 0;
+}
+
+.notif-item span {
+  color: #6fdfff;
+  font-size: 0.75rem;
+}
+
+.no-notif {
+  text-align: center;
+  color: #7fdfff;
+  font-size: 0.9rem;
+  padding: 10px 0;
+}

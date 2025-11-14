@@ -1,0 +1,26 @@
+:root {
+  --primary-color: #0055ff;
+  --secondary-color: #00bcd4;
+  --bg-light: #f4f6f8;
+  --bg-dark: #111827;
+  --text-color: #222;
+  --card-bg: #fff;
+  --radius: 12px;
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+  --font: "Poppins", "Roboto", sans-serif;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  background: var(--bg-light);
+  color: var(--text-color);
+}
+
+h2, h3 {
+  font-weight: 700;
+  color: var(--bg-dark);
+}
+body {
+  transition: background-color 0.4s ease, color 0.4s ease;
+}

@@ -1,0 +1,254 @@
+/* ============================================================
+   admin.css — Enhanced Futuristic AI / Tech-Themed Admin Panel
+   ============================================================ */
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap");
+
+.admin-page {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(ellipse at center, #071018 0%, #01060a 100%);
+  color: #eafcff;
+  overflow: hidden;
+  font-family: "Inter", sans-serif;
+}
+
+/* Glowing animated background */
+.admin-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    125deg,
+    rgba(0, 255, 255, 0.08),
+    rgba(0, 130, 255, 0.04),
+    rgba(0, 255, 255, 0.08)
+  );
+  background-size: 400% 400%;
+  animation: bgShift 25s ease infinite;
+  z-index: 0;
+}
+
+@keyframes bgShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* === Main Panel Box === */
+.admin-panel {
+  position: relative;
+  z-index: 2;
+  width: 90%;
+  max-width: 1100px;
+  padding: 40px;
+  border-radius: 18px;
+  background: rgba(14, 18, 26, 0.92);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 0 30px rgba(0, 255, 255, 0.15),
+    inset 0 0 25px rgba(0, 255, 255, 0.05);
+  border: 1px solid rgba(0, 255, 255, 0.15);
+  transition: all 0.4s ease;
+}
+
+/* Subtle hover glow */
+.admin-panel:hover {
+  box-shadow: 0 0 45px rgba(0, 255, 255, 0.25),
+    inset 0 0 25px rgba(0, 255, 255, 0.1);
+}
+
+/* === Header === */
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  border-bottom: 1px solid rgba(0, 255, 255, 0.1);
+  padding-bottom: 15px;
+}
+
+.admin-header h2 {
+  font-size: 1.9rem;
+  background: linear-gradient(90deg, #00ffff, #007bff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 15px rgba(0, 255, 255, 0.6);
+}
+
+/* === Tabs === */
+.admin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.admin-btn {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #007bff, #00ffff);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
+}
+
+.admin-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+}
+
+.admin-btn.active {
+  background: linear-gradient(90deg, #00ffff, #007bff);
+  box-shadow: 0 0 25px rgba(0, 255, 255, 0.4);
+}
+
+/* === Section Titles === */
+.admin-section h3 {
+  margin: 25px 0 15px;
+  color: #8feeff;
+  font-weight: 600;
+  font-size: 1.2rem;
+  text-shadow: 0 0 8px rgba(0, 255, 255, 0.3);
+}
+
+/* === Forms === */
+.admin-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.admin-form input {
+  flex: 1;
+  min-width: 150px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 255, 255, 0.25);
+  background: rgba(20, 25, 35, 0.8);
+  color: #eafcff;
+  transition: all 0.3s ease;
+}
+
+.admin-form input:focus {
+  border-color: #00ffff;
+  box-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
+  outline: none;
+}
+
+.admin-form button {
+  background: linear-gradient(90deg, #007bff, #00ffff);
+  border: none;
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.admin-form button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 18px rgba(0, 255, 255, 0.6);
+}
+
+/* === Cards for Data Items === */
+.admin-card {
+  background: rgba(15, 22, 30, 0.85);
+  border-radius: 10px;
+  padding: 15px 20px;
+  margin-bottom: 12px;
+  border: 1px solid rgba(0, 255, 255, 0.1);
+  box-shadow: 0 0 12px rgba(0, 255, 255, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 18px rgba(0, 255, 255, 0.15);
+}
+
+/* === Action Buttons === */
+.table-action {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.table-action button {
+  border: none;
+  cursor: pointer;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+/* Edit button */
+.table-action .edit {
+  background: rgba(0, 150, 255, 0.2);
+  color: #00bfff;
+}
+
+.table-action .edit:hover {
+  background: rgba(0, 150, 255, 0.4);
+  box-shadow: 0 0 8px rgba(0, 150, 255, 0.4);
+}
+
+/* Delete button */
+.table-action .delete {
+  background: rgba(255, 80, 80, 0.2);
+  color: #ff7070;
+}
+
+.table-action .delete:hover {
+  background: rgba(255, 80, 80, 0.35);
+  box-shadow: 0 0 8px rgba(255, 100, 100, 0.4);
+}
+
+/* === Snackbar Styling Override (Neon) === */
+.MuiAlert-root {
+  border-radius: 10px !important;
+  background: rgba(10, 25, 30, 0.95) !important;
+  color: #b9ffff !important;
+  border: 1px solid rgba(0, 255, 255, 0.3) !important;
+  box-shadow: 0 0 12px rgba(0, 255, 255, 0.25) !important;
+  font-weight: 500 !important;
+}
+
+/* === Responsive === */
+@media (max-width: 900px) {
+  .admin-panel {
+    padding: 25px;
+  }
+
+  .admin-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .admin-actions {
+    justify-content: flex-start;
+  }
+
+  .admin-form {
+    flex-direction: column;
+  }
+
+  .admin-form input {
+    width: 100%;
+  }
+}
