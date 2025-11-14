@@ -1,14 +1,14 @@
 // ==========================================
-// ProtectedRoute.js — Restrict admin pages (FIXED)
+// ProtectedRoute.js — Restrict Admin/User Pages
 // ==========================================
 
 import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
+import api from "../API"; // ✅ FIXED IMPORT
 
-import api from "../api";   // ✅ FIXED IMPORT
-
-function ProtectedRoute({ children, adminOnly = false }) {
-  const [authStatus, setAuthStatus] = useState("checking"); // checking | allowed | denied
+export default function ProtectedRoute({ children, adminOnly = false }) {
+  const [authStatus, setAuthStatus] = useState("checking");
+  // values: checking | allowed | denied
 
   useEffect(() => {
     const token = localStorage.getItem("access");
@@ -18,11 +18,8 @@ function ProtectedRoute({ children, adminOnly = false }) {
       return;
     }
 
-    // Validate user token + role
     api
-      .get("/api/current_user/", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+      .get("current_user/") // 🔥 NO /api/ prefix
       .then((res) => {
         if (adminOnly && !res.data.is_staff) {
           setAuthStatus("denied");
@@ -30,17 +27,16 @@ function ProtectedRoute({ children, adminOnly = false }) {
           setAuthStatus("allowed");
         }
       })
-      .catch(() => {
-        setAuthStatus("denied");
-      });
+      .catch(() => setAuthStatus("denied"));
   }, [adminOnly]);
 
-  if (authStatus === "checking")
+  if (authStatus === "checking") {
     return <p style={{ textAlign: "center" }}>Loading...</p>;
+  }
 
-  if (authStatus === "denied") return <Navigate to="/login" />;
+  if (authStatus === "denied") {
+    return <Navigate to="/login" />;
+  }
 
   return children;
 }
-
-export default ProtectedRoute;

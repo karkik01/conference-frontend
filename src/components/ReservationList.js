@@ -4,12 +4,7 @@
 
 import React, { useEffect, useState } from "react";
 
-import {
-  getReservations,
-  createReservation,
-} from "../api"; // ✅ FIXED IMPORTS
-
-import api from "../api"; // ↳ For delete + update (using axios instance)
+import api from "../API"; // ✅ FIXED IMPORT
 
 import {
   Dialog,
@@ -33,7 +28,6 @@ export default function ReservationList() {
     start_time: "",
     end_time: "",
   });
-
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
@@ -50,15 +44,15 @@ export default function ReservationList() {
 
   const loadReservations = async () => {
     try {
-      const data = await getReservations(); // ✅ FIXED
-      setReservations(data);
+      const res = await api.get("reservations/"); // 🔥 FIXED
+      setReservations(res.data);
     } catch (err) {
-      console.error(err);
+      console.error("Load error:", err);
       showSnackbar("Failed to load reservations", "error");
     }
   };
 
-  // ✅ Snackbar helper
+  // Snackbar shortcut
   const showSnackbar = (message, severity = "success") => {
     setSnackbar({ open: true, message, severity });
   };
@@ -66,21 +60,23 @@ export default function ReservationList() {
   // ✏️ Open edit dialog
   const handleEdit = (reservation) => {
     setSelectedRes(reservation);
+
     setForm({
       date: reservation.date,
       start_time: reservation.start_time,
       end_time: reservation.end_time,
     });
+
     setEditDialog(true);
   };
 
-  // ✏️ Submit edited reservation
+  // ✏️ Submit edit
   const handleEditSubmit = async (e) => {
     e.preventDefault();
 
     try {
       await api.put(
-        `/api/reservations/${selectedRes.id}/`,
+        `reservations/${selectedRes.id}/`,
         {
           date: form.date,
           start_time: form.start_time,
@@ -90,11 +86,11 @@ export default function ReservationList() {
         { headers }
       );
 
-      showSnackbar("Reservation updated successfully!");
+      showSnackbar("Reservation updated!", "success");
       setEditDialog(false);
       loadReservations();
     } catch (err) {
-      console.error(err);
+      console.error("Edit failed:", err);
       showSnackbar("Failed to update reservation", "error");
     }
   };
@@ -104,11 +100,11 @@ export default function ReservationList() {
     if (!window.confirm("Cancel this reservation?")) return;
 
     try {
-      await api.delete(`/api/reservations/${id}/`, { headers });
+      await api.delete(`reservations/${id}/`, { headers });
       showSnackbar("Reservation cancelled", "info");
       loadReservations();
     } catch (err) {
-      console.error(err);
+      console.error("Cancel failed:", err);
       showSnackbar("Failed to cancel reservation", "error");
     }
   };
@@ -124,9 +120,11 @@ export default function ReservationList() {
           reservations.map((r) => (
             <div key={r.id} className="reservation-card">
               <h3>{r.room?.name || "Unknown Room"}</h3>
+
               <p>
                 <b>Date:</b> {r.date}
               </p>
+
               <p>
                 <b>Time:</b> {r.start_time} - {r.end_time}
               </p>
@@ -164,7 +162,9 @@ export default function ReservationList() {
               label="Start Time"
               type="time"
               value={form.start_time}
-              onChange={(e) => setForm({ ...form, start_time: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, start_time: e.target.value })
+              }
               InputLabelProps={{ shrink: true }}
               fullWidth
               margin="dense"
@@ -174,7 +174,9 @@ export default function ReservationList() {
               label="End Time"
               type="time"
               value={form.end_time}
-              onChange={(e) => setForm({ ...form, end_time: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, end_time: e.target.value })
+              }
               InputLabelProps={{ shrink: true }}
               fullWidth
               margin="dense"

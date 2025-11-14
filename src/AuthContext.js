@@ -1,23 +1,28 @@
+// =======================================
+// AuthContext.js — Authentication Handler
+// =======================================
+
 import React, { createContext, useState, useEffect } from "react";
-import api from "./api";   // ✅ FIXED IMPORT
+import api from "./API"; // ✅ CASE-SENSITIVE IMPORT
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
-  // Fetch user details from backend if token exists
+  // 🔄 Fetch logged-in user details
   const fetchUser = async () => {
     const token = localStorage.getItem("access");
-    if (!token) return setUser(null);
+    if (!token) {
+      setUser(null);
+      return;
+    }
 
     try {
-      const res = await api.get("/api/current_user/", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.get("current_user/"); // 🔥 NO /api/ prefix
       setUser(res.data);
     } catch (err) {
-      console.error("User load error:", err);
+      console.error("Failed to load user:", err);
       setUser(null);
     }
   };
@@ -26,12 +31,14 @@ export const AuthProvider = ({ children }) => {
     fetchUser();
   }, []);
 
+  // 🔐 Login user (store JWT)
   const login = (data) => {
     localStorage.setItem("access", data.access);
     localStorage.setItem("refresh", data.refresh);
     fetchUser();
   };
 
+  // 🚪 Logout user
   const logout = () => {
     localStorage.removeItem("access");
     localStorage.removeItem("refresh");

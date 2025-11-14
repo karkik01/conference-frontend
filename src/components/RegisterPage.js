@@ -1,11 +1,12 @@
 // =====================================================
-// RegisterPage.js — Fixed for Vercel & Correct API Calls
+// RegisterPage.js — Futuristic Tech Theme + Toast Messages
 // =====================================================
 
 import React, { useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
 
-import api, { loginUser } from "../api";  // ✅ FIXED IMPORT
+import api from "../API"; // ✅ FIXED IMPORT
+import { loginUser } from "../API"; // We'll use custom login below if needed
 
 import { Eye, EyeOff } from "lucide-react";
 import { AuthContext } from "../AuthContext";
@@ -25,6 +26,7 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
+
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -42,19 +44,24 @@ export default function RegisterPage() {
     }
 
     setLoading(true);
+
     try {
-      // ✅ Create user account
-      await api.post("/api/users/", {
+      // 📝 Create user
+      await api.post("users/", {
         username: form.username,
         email: form.email,
         password: form.password,
       });
 
-      // 🔐 Auto-login after registration
-      const tokenData = await loginUser(form.username, form.password);
-      login(tokenData);
+      // 🔐 Auto-login using JWT
+      const tokenRes = await api.post("token/", {
+        username: form.username,
+        password: form.password,
+      });
 
-      toast.success("✅ Registration successful!", { theme: "dark" });
+      login(tokenRes.data);
+
+      toast.success("🎉 Registration successful!", { theme: "dark" });
       navigate("/");
     } catch (err) {
       console.error("Registration error:", err.response?.data || err.message);
@@ -135,6 +142,7 @@ export default function RegisterPage() {
         </p>
       </div>
 
+      {/* Toast Notifications */}
       <ToastContainer
         position="top-right"
         autoClose={2500}

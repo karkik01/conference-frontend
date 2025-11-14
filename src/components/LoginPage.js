@@ -1,11 +1,10 @@
 // =====================================================
-// LoginPage.js — Futuristic Tech Theme + Toast Messages (FIXED)
+// LoginPage.js — Futuristic Tech Theme + Toast Messages
 // =====================================================
 
 import React, { useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
-
-import { loginUser } from "../api";   // ✅ FIXED IMPORT
+import api from "../API"; // ✅ FIXED IMPORT
 import { Eye, EyeOff } from "lucide-react";
 import { AuthContext } from "../AuthContext";
 import { toast, ToastContainer } from "react-toastify";
@@ -18,6 +17,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -32,10 +32,13 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      // 🔐 Use correct API function
-      const tokenData = await loginUser(username, password);
+      // 🔐 Correct JWT Login
+      const res = await api.post("token/", {
+        username,
+        password,
+      });
 
-      login(tokenData);
+      login(res.data);
 
       toast.success("✅ Login successful!", { theme: "dark" });
       navigate("/");
@@ -96,6 +99,7 @@ export default function LoginPage() {
         </p>
       </div>
 
+      {/* Toast notifications */}
       <ToastContainer
         position="top-right"
         autoClose={2500}

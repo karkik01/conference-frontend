@@ -4,9 +4,9 @@
 
 import React, { useContext, useEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { AuthContext } from "../AuthContext";
 
-import api from "../api";   // ✅ FIXED IMPORT
+import { AuthContext } from "../AuthContext";
+import api from "../API"; // ✅ FIXED IMPORT
 
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import Badge from "@mui/material/Badge";
@@ -20,19 +20,24 @@ export default function Navbar() {
   const dropdownRef = useRef(null);
 
   const token = localStorage.getItem("access");
-  const headers = { Authorization: `Bearer ${token}` };
+
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
 
   useEffect(() => {
     if (token) fetchNotifications();
-    const interval = setInterval(fetchNotifications, 60000);
+
+    const interval = setInterval(fetchNotifications, 60000); // refresh every 60s
+
     return () => clearInterval(interval);
   }, [token]);
 
   const fetchNotifications = async () => {
     try {
-      const res = await api.get("/api/notifications/", { headers }); // ✅ FIXED
+      const res = await api.get("notifications/", { headers });
       const unread = res.data.filter((n) => !n.read);
-      setNotifications(unread.slice(0, 5));
+      setNotifications(unread.slice(0, 5)); // show last 5 unread
     } catch (err) {
       console.error("Notification fetch error:", err);
     }
@@ -48,24 +53,25 @@ export default function Navbar() {
     try {
       for (const n of notifications) {
         await api.patch(
-          `/api/notifications/${n.id}/`,
+          `notifications/${n.id}/`,
           { read: true },
           { headers }
-        ); // ✅ FIXED
+        );
       }
       setNotifications([]);
     } catch (err) {
-      console.error("Mark as read failed:", err);
+      console.error("Mark-as-read failed:", err);
     }
   };
 
-  // Close dropdown on outside click
+  // Close dropdown when clicked outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setDropdownOpen(false);
       }
     };
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
@@ -78,7 +84,9 @@ export default function Navbar() {
 
       <div className="nav-links">
         <Link to="/">Rooms</Link>
+
         {user && <Link to="/reservations">My Reservations</Link>}
+
         {user?.is_staff && <Link to="/admin">Admin Panel</Link>}
 
         {/* 🔔 Notification Bell */}

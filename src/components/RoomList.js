@@ -1,14 +1,11 @@
 // ===================================================
-// RoomList.js — Fixed & Enhanced Room Reservation
+// RoomList.js — Room Reservation Page (FIXED)
 // ===================================================
 
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import {
-  getRooms,
-  createReservation
-} from "../api";   // ✅ FIXED IMPORTS
+import api from "../API"; // ✅ FIXED IMPORT
 
 import {
   Dialog,
@@ -20,6 +17,7 @@ import {
   Snackbar,
   Alert,
 } from "@mui/material";
+
 import "../styles/rooms.css";
 
 export default function RoomList() {
@@ -31,35 +29,32 @@ export default function RoomList() {
     message: "",
     severity: "success",
   });
+
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const token = localStorage.getItem("access");
 
-  // 🔄 Fetch rooms on mount
+  // 🔄 Fetch rooms
   useEffect(() => {
     const fetchRoomsData = async () => {
       try {
-        const data = await getRooms();   // ✅ FIXED API CALL
-        setRooms(data);
+        const res = await api.get("rooms/"); // 🔥 FIXED
+        setRooms(res.data);
       } catch (err) {
         console.error("Error loading rooms:", err);
-        setSnackbar({
-          open: true,
-          message: "Failed to load rooms",
-          severity: "error",
-        });
+        showSnackbar("Failed to load rooms", "error");
       }
     };
+
     fetchRoomsData();
   }, []);
 
-  // ✅ Snackbar helper
   const showSnackbar = (message, severity = "success") => {
     setSnackbar({ open: true, message, severity });
   };
 
-  // ✅ Handle Reservation Submit
+  // 📝 Create reservation
   const handleReserve = async (e) => {
     e.preventDefault();
 
@@ -69,24 +64,29 @@ export default function RoomList() {
     }
 
     setLoading(true);
+
     try {
-      await createReservation(              // ✅ FIXED API CALL
+      await api.post(
+        "reservations/",
         {
           room_id: selectedRoom.id,
           date: form.date,
           start_time: form.start_time,
           end_time: form.end_time,
         },
-        token
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
       );
 
-      showSnackbar("✅ Room reserved successfully!");
-      setTimeout(() => navigate("/reservations"), 1500);
+      showSnackbar("Room reserved successfully!");
+      setTimeout(() => navigate("/reservations"), 1200);
+
       setSelectedRoom(null);
       setForm({ date: "", start_time: "", end_time: "" });
     } catch (err) {
-      console.error("Reservation Error:", err.response?.data || err.message);
-      showSnackbar("❌ Reservation failed", "error");
+      console.error("Reservation error:", err.response?.data || err.message);
+      showSnackbar("Reservation failed!", "error");
     } finally {
       setLoading(false);
     }
@@ -109,6 +109,7 @@ export default function RoomList() {
               <p>
                 <b>Location:</b> {room.location}
               </p>
+
               <button
                 className="reserve-btn"
                 onClick={() => setSelectedRoom(room)}
@@ -124,25 +125,8 @@ export default function RoomList() {
       <Dialog
         open={!!selectedRoom}
         onClose={() => !loading && setSelectedRoom(null)}
-        PaperProps={{
-          sx: {
-            backgroundColor: "rgba(10,20,30,0.95)",
-            backdropFilter: "blur(10px)",
-            border: "1px solid rgba(0,255,255,0.2)",
-            boxShadow: "0 0 25px rgba(0,255,255,0.3)",
-          },
-        }}
       >
-        <DialogTitle
-          sx={{
-            background: "linear-gradient(90deg, #00ffff, #007bff)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            fontWeight: 700,
-          }}
-        >
-          Reserve {selectedRoom?.name}
-        </DialogTitle>
+        <DialogTitle>Reserve {selectedRoom?.name}</DialogTitle>
 
         <DialogContent>
           <form className="reserve-form" onSubmit={handleReserve}>
@@ -155,6 +139,7 @@ export default function RoomList() {
               fullWidth
               margin="dense"
             />
+
             <TextField
               label="Start Time"
               type="time"
@@ -164,6 +149,7 @@ export default function RoomList() {
               fullWidth
               margin="dense"
             />
+
             <TextField
               label="End Time"
               type="time"
@@ -177,45 +163,29 @@ export default function RoomList() {
         </DialogContent>
 
         <DialogActions>
-          <Button
-            onClick={() => !loading && setSelectedRoom(null)}
-            sx={{ color: "#00eaff" }}
-          >
+          <Button onClick={() => !loading && setSelectedRoom(null)}>
             Cancel
           </Button>
+
           <Button
             variant="contained"
-            onClick={handleReserve}
             disabled={loading}
-            sx={{
-              background: "linear-gradient(90deg, #007bff, #00ffff)",
-              color: "#fff",
-              fontWeight: 600,
-              "&:hover": {
-                boxShadow: "0 0 12px rgba(0,255,255,0.6)",
-              },
-            }}
+            onClick={handleReserve}
           >
             {loading ? "Reserving..." : "Confirm"}
           </Button>
         </DialogActions>
       </Dialog>
 
+      {/* Snackbar */}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={2500}
         onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
       >
         <Alert
           severity={snackbar.severity}
           onClose={() => setSnackbar({ ...snackbar, open: false })}
-          sx={{
-            background: "rgba(10,25,30,0.95)",
-            color: "#b9ffff",
-            border: "1px solid rgba(0,255,255,0.3)",
-            boxShadow: "0 0 12px rgba(0,255,255,0.25)",
-          }}
         >
           {snackbar.message}
         </Alert>
