@@ -1,11 +1,13 @@
 // ======================================================
-// Navbar.js — Futuristic Notifications Dropdown
+// Navbar.js — Futuristic Notifications Dropdown (FIXED)
 // ======================================================
 
 import React, { useContext, useEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../AuthContext";
-import API from "../api";
+
+import api from "../api";   // ✅ FIXED IMPORT
+
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import Badge from "@mui/material/Badge";
 import "../styles/navbar.css";
@@ -28,7 +30,7 @@ export default function Navbar() {
 
   const fetchNotifications = async () => {
     try {
-      const res = await API.get("notifications/", { headers });
+      const res = await api.get("/api/notifications/", { headers }); // ✅ FIXED
       const unread = res.data.filter((n) => !n.read);
       setNotifications(unread.slice(0, 5));
     } catch (err) {
@@ -45,7 +47,11 @@ export default function Navbar() {
   const markAllAsRead = async () => {
     try {
       for (const n of notifications) {
-        await API.patch(`notifications/${n.id}/`, { read: true }, { headers });
+        await api.patch(
+          `/api/notifications/${n.id}/`,
+          { read: true },
+          { headers }
+        ); // ✅ FIXED
       }
       setNotifications([]);
     } catch (err) {
@@ -53,7 +59,7 @@ export default function Navbar() {
     }
   };
 
-  // ✅ Close dropdown when clicking outside
+  // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -101,6 +107,7 @@ export default function Navbar() {
                   <h4>Notifications</h4>
                   <button onClick={markAllAsRead}>Mark All Read</button>
                 </div>
+
                 {notifications.length === 0 ? (
                   <p className="no-notif">No new notifications</p>
                 ) : (
