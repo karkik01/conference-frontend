@@ -1,13 +1,15 @@
 // =====================================================
-// LoginPage.js — Futuristic Tech Theme + Toast Messages
+// LoginPage.js — Futuristic Tech Theme + Toast Messages (FIXED)
 // =====================================================
 
 import React, { useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import API from "../api";
+
+import { loginUser } from "../api";   // ✅ FIXED IMPORT
 import { Eye, EyeOff } from "lucide-react";
 import { AuthContext } from "../AuthContext";
 import { toast, ToastContainer } from "react-toastify";
+
 import "react-toastify/dist/ReactToastify.css";
 import "../styles/login.css";
 
@@ -21,15 +23,20 @@ export default function LoginPage() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+
     if (!username || !password) {
       toast.warning("Please enter username and password", { theme: "dark" });
       return;
     }
 
     setLoading(true);
+
     try {
-      const res = await API.post("token/", { username, password });
-      login(res.data);
+      // 🔐 Use correct API function
+      const tokenData = await loginUser(username, password);
+
+      login(tokenData);
+
       toast.success("✅ Login successful!", { theme: "dark" });
       navigate("/");
     } catch (err) {
@@ -62,6 +69,7 @@ export default function LoginPage() {
             onChange={(e) => setUsername(e.target.value)}
             required
           />
+
           <div className="input-group">
             <input
               type={showPassword ? "text" : "password"}
@@ -88,7 +96,6 @@ export default function LoginPage() {
         </p>
       </div>
 
-      {/* Toast notifications */}
       <ToastContainer
         position="top-right"
         autoClose={2500}
