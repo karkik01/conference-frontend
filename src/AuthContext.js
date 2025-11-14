@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from "react";
-import API from "./api";
+import api from "./api";   // ✅ FIXED IMPORT
 
 export const AuthContext = createContext();
 
@@ -10,12 +10,14 @@ export const AuthProvider = ({ children }) => {
   const fetchUser = async () => {
     const token = localStorage.getItem("access");
     if (!token) return setUser(null);
+
     try {
-      const res = await API.get("current_user/", {
+      const res = await api.get("/api/current_user/", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUser(res.data);
-    } catch {
+    } catch (err) {
+      console.error("User load error:", err);
       setUser(null);
     }
   };
