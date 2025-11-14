@@ -4,7 +4,12 @@
 
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import API from "../api";
+
+import {
+  getRooms,
+  createReservation
+} from "../api";   // ✅ FIXED IMPORTS
+
 import {
   Dialog,
   DialogTitle,
@@ -30,14 +35,13 @@ export default function RoomList() {
   const navigate = useNavigate();
 
   const token = localStorage.getItem("access");
-  const headers = { Authorization: `Bearer ${token}` };
 
   // 🔄 Fetch rooms on mount
   useEffect(() => {
-    const fetchRooms = async () => {
+    const fetchRoomsData = async () => {
       try {
-        const res = await API.get("rooms/");
-        setRooms(res.data);
+        const data = await getRooms();   // ✅ FIXED API CALL
+        setRooms(data);
       } catch (err) {
         console.error("Error loading rooms:", err);
         setSnackbar({
@@ -47,7 +51,7 @@ export default function RoomList() {
         });
       }
     };
-    fetchRooms();
+    fetchRoomsData();
   }, []);
 
   // ✅ Snackbar helper
@@ -66,21 +70,19 @@ export default function RoomList() {
 
     setLoading(true);
     try {
-      // ✅ Fix: Send `room_id` instead of `room`
-      await API.post(
-        "reservations/",
+      await createReservation(              // ✅ FIXED API CALL
         {
           room_id: selectedRoom.id,
           date: form.date,
           start_time: form.start_time,
           end_time: form.end_time,
         },
-        { headers }
+        token
       );
 
       showSnackbar("✅ Room reserved successfully!");
       setTimeout(() => navigate("/reservations"), 1500);
-      setSelectedRoom(null); // close dialog on success
+      setSelectedRoom(null);
       setForm({ date: "", start_time: "", end_time: "" });
     } catch (err) {
       console.error("Reservation Error:", err.response?.data || err.message);
@@ -118,7 +120,7 @@ export default function RoomList() {
         )}
       </div>
 
-      {/* ✅ Reservation Dialog */}
+      {/* Reservation Dialog */}
       <Dialog
         open={!!selectedRoom}
         onClose={() => !loading && setSelectedRoom(null)}
@@ -199,7 +201,6 @@ export default function RoomList() {
         </DialogActions>
       </Dialog>
 
-      {/* ✅ Snackbar Notifications */}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={2500}

@@ -1,13 +1,16 @@
 // =====================================================
-// RegisterPage.js — Futuristic Tech Theme + Toast Messages
+// RegisterPage.js — Fixed for Vercel & Correct API Calls
 // =====================================================
 
 import React, { useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import API from "../api";
+
+import api, { loginUser } from "../api";  // ✅ FIXED IMPORT
+
 import { Eye, EyeOff } from "lucide-react";
 import { AuthContext } from "../AuthContext";
 import { toast, ToastContainer } from "react-toastify";
+
 import "react-toastify/dist/ReactToastify.css";
 import "../styles/register.css";
 
@@ -18,6 +21,7 @@ export default function RegisterPage() {
     password: "",
     confirmPassword: "",
   });
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -39,18 +43,16 @@ export default function RegisterPage() {
 
     setLoading(true);
     try {
-      await API.post("register/", {
+      // ✅ Create user account
+      await api.post("/api/users/", {
         username: form.username,
         email: form.email,
         password: form.password,
       });
 
-      // Auto-login after registration
-      const tokenRes = await API.post("token/", {
-        username: form.username,
-        password: form.password,
-      });
-      login(tokenRes.data);
+      // 🔐 Auto-login after registration
+      const tokenData = await loginUser(form.username, form.password);
+      login(tokenData);
 
       toast.success("✅ Registration successful!", { theme: "dark" });
       navigate("/");
@@ -84,6 +86,7 @@ export default function RegisterPage() {
             onChange={(e) => setForm({ ...form, username: e.target.value })}
             required
           />
+
           <input
             type="email"
             placeholder="Email (optional)"
@@ -132,7 +135,6 @@ export default function RegisterPage() {
         </p>
       </div>
 
-      {/* Toast notifications */}
       <ToastContainer
         position="top-right"
         autoClose={2500}

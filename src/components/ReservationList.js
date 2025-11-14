@@ -1,9 +1,16 @@
 // ==========================================================
-// ReservationList.js — User Reservation Management
+// ReservationList.js — User Reservation Management (FIXED)
 // ==========================================================
 
 import React, { useEffect, useState } from "react";
-import API from "../api";
+
+import {
+  getReservations,
+  createReservation,
+} from "../api"; // ✅ FIXED IMPORTS
+
+import api from "../api"; // ↳ For delete + update (using axios instance)
+
 import {
   Dialog,
   DialogTitle,
@@ -14,13 +21,19 @@ import {
   Snackbar,
   Alert,
 } from "@mui/material";
+
 import "../styles/reservations.css";
 
 export default function ReservationList() {
   const [reservations, setReservations] = useState([]);
   const [editDialog, setEditDialog] = useState(false);
   const [selectedRes, setSelectedRes] = useState(null);
-  const [form, setForm] = useState({ date: "", start_time: "", end_time: "" });
+  const [form, setForm] = useState({
+    date: "",
+    start_time: "",
+    end_time: "",
+  });
+
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
@@ -37,8 +50,8 @@ export default function ReservationList() {
 
   const loadReservations = async () => {
     try {
-      const res = await API.get("reservations/", { headers });
-      setReservations(res.data);
+      const data = await getReservations(); // ✅ FIXED
+      setReservations(data);
     } catch (err) {
       console.error(err);
       showSnackbar("Failed to load reservations", "error");
@@ -50,7 +63,7 @@ export default function ReservationList() {
     setSnackbar({ open: true, message, severity });
   };
 
-  // ✏️ Edit reservation
+  // ✏️ Open edit dialog
   const handleEdit = (reservation) => {
     setSelectedRes(reservation);
     setForm({
@@ -61,11 +74,13 @@ export default function ReservationList() {
     setEditDialog(true);
   };
 
+  // ✏️ Submit edited reservation
   const handleEditSubmit = async (e) => {
     e.preventDefault();
+
     try {
-      await API.put(
-        `reservations/${selectedRes.id}/`,
+      await api.put(
+        `/api/reservations/${selectedRes.id}/`,
         {
           date: form.date,
           start_time: form.start_time,
@@ -74,6 +89,7 @@ export default function ReservationList() {
         },
         { headers }
       );
+
       showSnackbar("Reservation updated successfully!");
       setEditDialog(false);
       loadReservations();
@@ -86,9 +102,10 @@ export default function ReservationList() {
   // ❌ Cancel reservation
   const handleCancel = async (id) => {
     if (!window.confirm("Cancel this reservation?")) return;
+
     try {
-      await API.delete(`reservations/${id}/`, { headers });
-      showSnackbar("Reservation cancelled successfully", "info");
+      await api.delete(`/api/reservations/${id}/`, { headers });
+      showSnackbar("Reservation cancelled", "info");
       loadReservations();
     } catch (err) {
       console.error(err);
@@ -113,6 +130,7 @@ export default function ReservationList() {
               <p>
                 <b>Time:</b> {r.start_time} - {r.end_time}
               </p>
+
               <div className="reservation-actions">
                 <button className="edit" onClick={() => handleEdit(r)}>
                   Edit
@@ -126,32 +144,12 @@ export default function ReservationList() {
         )}
       </div>
 
-      {/* ✏️ Edit Dialog */}
-      <Dialog
-        open={editDialog}
-        onClose={() => setEditDialog(false)}
-        PaperProps={{
-          sx: {
-            backgroundColor: "rgba(10,20,30,0.95)",
-            backdropFilter: "blur(10px)",
-            border: "1px solid rgba(0,255,255,0.2)",
-            boxShadow: "0 0 25px rgba(0,255,255,0.3)",
-          },
-        }}
-      >
-        <DialogTitle
-          sx={{
-            background: "linear-gradient(90deg, #00ffff, #007bff)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            fontWeight: 700,
-          }}
-        >
-          Edit Reservation
-        </DialogTitle>
+      {/* Edit Dialog */}
+      <Dialog open={editDialog} onClose={() => setEditDialog(false)}>
+        <DialogTitle>Edit Reservation</DialogTitle>
 
         <DialogContent>
-          <form className="reserve-form" onSubmit={handleEditSubmit}>
+          <form onSubmit={handleEditSubmit}>
             <TextField
               label="Date"
               type="date"
@@ -161,6 +159,7 @@ export default function ReservationList() {
               fullWidth
               margin="dense"
             />
+
             <TextField
               label="Start Time"
               type="time"
@@ -170,6 +169,7 @@ export default function ReservationList() {
               fullWidth
               margin="dense"
             />
+
             <TextField
               label="End Time"
               type="time"
@@ -184,21 +184,14 @@ export default function ReservationList() {
 
         <DialogActions>
           <Button onClick={() => setEditDialog(false)}>Cancel</Button>
-          <Button
-            variant="contained"
-            onClick={handleEditSubmit}
-            sx={{
-              background: "linear-gradient(90deg, #007bff, #00ffff)",
-              color: "#fff",
-              fontWeight: 600,
-            }}
-          >
+
+          <Button variant="contained" onClick={handleEditSubmit}>
             Save
           </Button>
         </DialogActions>
       </Dialog>
 
-      {/* ✅ Snackbar Notifications */}
+      {/* Snackbar */}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={2500}
@@ -208,12 +201,6 @@ export default function ReservationList() {
         <Alert
           severity={snackbar.severity}
           onClose={() => setSnackbar({ ...snackbar, open: false })}
-          sx={{
-            background: "rgba(10,25,30,0.95)",
-            color: "#b9ffff",
-            border: "1px solid rgba(0,255,255,0.3)",
-            boxShadow: "0 0 12px rgba(0,255,255,0.25)",
-          }}
         >
           {snackbar.message}
         </Alert>
